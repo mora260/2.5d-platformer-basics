@@ -12,10 +12,12 @@ public class Player : MonoBehaviour
     private float _playerMovementSpeed = 2.0f;
 
     [SerializeField]
-    private float _jumpHeight = 3.0f;
+    private float _jumpVelocity = 6.0f;
 
     private CharacterController _characterController;
     private float _playerVelocityY;
+
+    private bool _canDoubleJump;
 
     // Start is called before the first frame update
     void Start()
@@ -33,8 +35,15 @@ public class Player : MonoBehaviour
       float horizontalMovement = Input.GetAxis("Horizontal") * _playerMovementSpeed;
       // if a Jump is detected, modify speed in y axis 
       if (Input.GetButtonDown("Jump") && _characterController.isGrounded) {
-        _playerVelocityY += _jumpHeight * 2.0f;
+        _playerVelocityY = _jumpVelocity;
+        _canDoubleJump = true;
       }
+
+      if (Input.GetButtonDown("Jump") && !_characterController.isGrounded && _canDoubleJump) {
+        _playerVelocityY = _jumpVelocity * 0.8f;
+        _canDoubleJump = false;
+      }
+
       // apply displacement based on speeds
       _characterController.Move(new Vector3(horizontalMovement, _playerVelocityY, 0) * Time.deltaTime ); // multiply for Time.deltaTime to convert velocity to distance... move that distance
         
@@ -44,16 +53,14 @@ public class Player : MonoBehaviour
       // if player is grounded and velocity is negative, reset "y" velocity
       if (_characterController.isGrounded && _playerVelocityY < 0)
       { 
-          _playerVelocityY = 0f;
+        _playerVelocityY = 0f;
+        _canDoubleJump = false;
       }
       // applying gravity every fixed update
       _playerVelocityY += _gravityValue * Time.deltaTime; // multiply for Time.deltaTime to convert acceleration to velocity
     }
 
-    // private void OnCollisionEnter(Collision other) {
-    //   Debug.Log(other.gameObject.tag);
-    //   if (other.gameObject.tag == "Terrain") {
-    //     Debug.Log("Colliding");
-    //   }
-    // }
+    public void SetYVelocity(float v) {
+      _playerVelocityY = v;
+    }
 }
