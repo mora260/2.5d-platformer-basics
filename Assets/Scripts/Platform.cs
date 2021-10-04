@@ -10,7 +10,7 @@ public class Platform : MonoBehaviour
       Player player = GameObject.Find("Player").GetComponent<Player>();
 
       if ( player ) {
-        player.SetYVelocity(0.5f);
+        player.SetYVelocity(1.0f);
       }
       
     }
