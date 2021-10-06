@@ -19,12 +19,23 @@ public class Player : MonoBehaviour
 
     private bool _canDoubleJump;
 
+    private int _coins;
+
+    private UIManager _uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
+        _coins = 0;
         _characterController = GetComponent<CharacterController>();
         if (_characterController == null) {
           Debug.Log("Hey! no cc!!");
+        }
+
+        _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+
+        if (_uiManager == null) {
+          Debug.Log("Hey! no uiManager!!");
         }
     }
 
@@ -62,5 +73,12 @@ public class Player : MonoBehaviour
 
     public void SetYVelocity(float v) {
       _playerVelocityY = v;
+    }
+
+    public void IncreaseCoins() {
+      _coins++;
+      if (_uiManager) {
+        _uiManager.SetCoinsText(_coins);
+      }
     }
 }
