@@ -4,8 +4,19 @@ using UnityEngine;
 
 public class Platform : MonoBehaviour
 {
+  private void OnTriggerEnter(Collider other) {
+    if (other.tag == "Player") {
+      other.transform.parent = gameObject.transform;
+    }
+  }
+  
+  private void OnTriggerExit(Collider other) {
+    if (other.tag == "Player") {
+      other.transform.parent = null;
+    }
+  }
 
-    private void OnTriggerEnter(Collider other) {
+  public void HitTheBottom (Collider other) {
     if (other.gameObject.tag == "Player") {
       Player player = GameObject.Find("Player").GetComponent<Player>();
 

@@ -118,6 +118,7 @@ MonoBehaviour:
   _gravityValue: -30
   _playerMovementSpeed: 4
   _jumpVelocity: 15
+  _spawnPoint: {fileID: 0}
 --- !u!136 &1113015861
 CapsuleCollider:
   m_ObjectHideFlags: 0
