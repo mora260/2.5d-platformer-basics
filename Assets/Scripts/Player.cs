@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
 
     private bool _canDoubleJump;
 
-    private bool _grounded;
+    private float _groundedTimer;
 
     private int _coins;
     private int _lives;
@@ -52,20 +52,29 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      if (Input.GetButtonDown("Jump") && (!_grounded || !_characterController.isGrounded ) && _canDoubleJump) {
+      if (_characterController.isGrounded) {
+        _groundedTimer = 0.3f;
+      }
+
+      if (_groundedTimer > 0)
+      {
+        _groundedTimer -= Time.deltaTime;
+      }
+
+      if (Input.GetButtonDown("Jump") && _groundedTimer == 0 && _canDoubleJump) {
         _playerVelocityY = _jumpVelocity * 0.8f;
         _canDoubleJump = false;
       }
       
-      // get speed in x axis
-      float horizontalMovement = Input.GetAxis("Horizontal") * _playerMovementSpeed;
       // if a Jump is detected, modify speed in y axis 
-      if (Input.GetButtonDown("Jump") && ( _grounded || _characterController.isGrounded ) ) {
+      if (Input.GetButtonDown("Jump") && _groundedTimer > 0 ) {
+        _groundedTimer = 0;
         _playerVelocityY = _jumpVelocity;
         _canDoubleJump = true;
-        _grounded = false;
       }
 
+      // get speed in x axis
+      float horizontalMovement = Input.GetAxis("Horizontal") * _playerMovementSpeed;
       // apply displacement based on speeds
       _characterController.Move(new Vector3(horizontalMovement, _playerVelocityY, 0) * Time.deltaTime ); // multiply for Time.deltaTime to convert velocity to distance... move that distance
 
@@ -79,10 +88,8 @@ public class Player : MonoBehaviour
       // applying gravity every fixed update
       _playerVelocityY += _gravityValue * Time.deltaTime; // multiply for Time.deltaTime to convert acceleration to velocity
       
-      _grounded = _characterController.isGrounded;
-      
       // if player is grounded and velocity is negative, reset "y" velocity
-      if (_grounded)
+      if (_characterController.isGrounded && _playerVelocityY < 0f)
       { 
         _playerVelocityY = 0f;
         _canDoubleJump = false;
