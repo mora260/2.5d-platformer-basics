@@ -6,10 +6,14 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField]
-    private Text _coinText;
+    private Text _coinText, _livesText;
     
     public void SetCoinsText(int coins) {
       _coinText.text = "Coins: " + coins.ToString();
+    }
+
+    public void SetLivesText(int lives) {
+      _livesText.text = "Lives: " + lives.ToString();
     }
 
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -19,7 +20,11 @@ public class Player : MonoBehaviour
 
     private bool _canDoubleJump;
 
+    private bool _grounded;
+
     private int _coins;
+    private int _lives;
+    private bool _death;
 
     private UIManager _uiManager;
 
@@ -30,6 +35,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         _coins = 0;
+        _lives = 3;
+        _death = false;
         _characterController = GetComponent<CharacterController>();
         if (_characterController == null) {
           Debug.Log("Hey! no cc!!");
@@ -45,40 +52,48 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+      if (Input.GetButtonDown("Jump") && (!_grounded || !_characterController.isGrounded ) && _canDoubleJump) {
+        _playerVelocityY = _jumpVelocity * 0.8f;
+        _canDoubleJump = false;
+      }
+      
       // get speed in x axis
       float horizontalMovement = Input.GetAxis("Horizontal") * _playerMovementSpeed;
       // if a Jump is detected, modify speed in y axis 
-      if (Input.GetButtonDown("Jump") && _characterController.isGrounded) {
+      if (Input.GetButtonDown("Jump") && ( _grounded || _characterController.isGrounded ) ) {
         _playerVelocityY = _jumpVelocity;
         _canDoubleJump = true;
-      }
-
-      if (Input.GetButtonDown("Jump") && !_characterController.isGrounded && _canDoubleJump) {
-        _playerVelocityY = _jumpVelocity * 0.8f;
-        _canDoubleJump = false;
+        _grounded = false;
       }
 
       // apply displacement based on speeds
       _characterController.Move(new Vector3(horizontalMovement, _playerVelocityY, 0) * Time.deltaTime ); // multiply for Time.deltaTime to convert velocity to distance... move that distance
 
-      if (transform.position.y < -25.0f) {
-        // TODO reduce lives
-        // reset spawn point
-        _playerVelocityY = 0;
-        transform.position = _spawnPoint.position;
-      }
-        
+      if (transform.position.y < -25.0f && !_death) {
+        LoseALife();
+        _death = true;
+      }         
     }
 
     private void FixedUpdate() {
+      // applying gravity every fixed update
+      _playerVelocityY += _gravityValue * Time.deltaTime; // multiply for Time.deltaTime to convert acceleration to velocity
+      
+      _grounded = _characterController.isGrounded;
+      
       // if player is grounded and velocity is negative, reset "y" velocity
-      if (_characterController.isGrounded && _playerVelocityY < 0)
+      if (_grounded)
       { 
         _playerVelocityY = 0f;
         _canDoubleJump = false;
       }
-      // applying gravity every fixed update
-      _playerVelocityY += _gravityValue * Time.deltaTime; // multiply for Time.deltaTime to convert acceleration to velocity
+      
+      if (_death) { 
+        _playerVelocityY = 0f;
+        // reset spawn point
+        transform.position = _spawnPoint.position;
+        _death = false;
+      }
     }
 
     public void SetYVelocity(float v) {
@@ -89,6 +104,17 @@ public class Player : MonoBehaviour
       _coins++;
       if (_uiManager) {
         _uiManager.SetCoinsText(_coins);
+      }
+    }
+
+    public void LoseALife() {
+      _lives--;
+      if (_uiManager) {
+        _uiManager.SetLivesText(_lives);
+      }
+
+      if (_lives == 0) {
+        SceneManager.LoadScene("Level1");
       }
     }
 }
