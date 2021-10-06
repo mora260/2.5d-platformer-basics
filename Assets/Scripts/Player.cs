@@ -23,6 +23,9 @@ public class Player : MonoBehaviour
 
     private UIManager _uiManager;
 
+    [SerializeField]
+    Transform _spawnPoint;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -57,6 +60,13 @@ public class Player : MonoBehaviour
 
       // apply displacement based on speeds
       _characterController.Move(new Vector3(horizontalMovement, _playerVelocityY, 0) * Time.deltaTime ); // multiply for Time.deltaTime to convert velocity to distance... move that distance
+
+      if (transform.position.y < -25.0f) {
+        // TODO reduce lives
+        // reset spawn point
+        _playerVelocityY = 0;
+        transform.position = _spawnPoint.position;
+      }
         
     }
 
